@@ -6,6 +6,8 @@
 external pure_js_expr : string -> 'a = "caml_pure_js_expr"
 external js_expr : string -> 'a = "caml_js_expr"
 
+external wrap_callback : ('a -> 'b) -> 'c = "caml_js_wrap_callback"
+
 (* Values *)
 
 type t
@@ -273,12 +275,17 @@ end
 module Promise = struct
   type t = jv
   let promise = get global "Promise"
-  let create f = new' promise [| repr f |]
+  let create (f : (('a -> unit) -> ('b -> unit) -> unit)) = 
+    let wrap f (res : t) (rej : t) =
+      f (fun v -> apply res [| repr v |]) (fun v -> apply rej [| repr v |])
+    in
+    let t = wrap f in
+    new' promise [| wrap_callback t |]
   let resolve v = call promise "resolve" [| repr v |]
   let reject v = call promise "reject" [| repr v |]
-  let await p k = ignore (call p "then" [| repr k |])
-  let bind p res = call p "then" [| repr res |]
-  let then' p res rej = call p "then" [| repr res; repr rej|]
+  let await p k = ignore (call p "then" [| wrap_callback k |])
+  let bind p res = call p "then" [| wrap_callback res |]
+  let then' p res rej = call p "then" [| wrap_callback res; wrap_callback rej|]
   let all arr = call promise "all" [| repr arr |]
 end
 

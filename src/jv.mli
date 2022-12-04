@@ -35,6 +35,8 @@ val instanceof : t -> cons:t -> bool
 external repr : 'a -> t = "%identity"
 (** [repr v] is the OCaml value [v] as its JavaScript value representation. *)
 
+external wrap_callback : ('a -> 'b) -> 'c = "caml_js_wrap_callback"
+
 (** {1:null_undefined Null and undefined} *)
 
 val null : t

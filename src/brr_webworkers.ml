@@ -30,7 +30,7 @@ module Worker = struct
   let terminate w = ignore @@ Jv.call w "terminate" [||]
   let post ?opts w v =
     let opts = match opts with None -> Jv.undefined | Some o -> Obj.magic o in
-    ignore @@ Jv.call w "postMessage" [|Jv.repr v; opts|]
+    ignore @@ Jv.call w "postMessage" [| Jv.repr v; opts|]
 
   module Shared  = struct
     type t = Jv.t
@@ -50,7 +50,7 @@ module Worker = struct
 
     let post ?opts v =
       let opts = match opts with None -> Jv.undefined | Some o -> Obj.magic o in
-      ignore @@ Jv.call Jv.global "postMessage" [| Jv.repr v; opts |]
+      ignore @@ Jv.call Jv.global "postMessage" [| Jv.repr  v; opts |]
 
     let close () = ignore @@ Jv.call Jv.global "close" [||]
   end

@@ -57,7 +57,7 @@ let of_list fs =
 
 let tick ~ms =
   fut @@ Jv.Promise.create @@ fun res _rej ->
-  ignore (Jv.apply (Jv.get Jv.global "setTimeout") Jv.[| repr res; of_int ms |])
+  ignore (Jv.apply (Jv.get Jv.global "setTimeout") Jv.[| wrap_callback res; of_int ms |])
 
 (* Converting with JavaScript promises *)
 

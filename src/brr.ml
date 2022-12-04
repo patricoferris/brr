@@ -73,11 +73,11 @@ module Ev = struct
 
   let listen ?(opts = Jv.obj [||]) type' f t =
     ignore @@ Jv.call t "addEventListener"
-      [|Jv.of_jstr type'; Jv.repr f; opts |]
+      [|Jv.of_jstr type'; Jv.wrap_callback f; opts |]
 
   let unlisten ?(opts = Jv.obj [||]) type' f t =
     ignore @@ Jv.call t "removeEventListener"
-      [|Jv.of_jstr type'; Jv.repr f; opts |]
+      [|Jv.of_jstr type'; Jv.wrap_callback f; opts |]
 
   let next ?capture type' t =
     let fut, set = Fut.create () in
@@ -606,11 +606,11 @@ module Tarray = struct
   let map f a = Jv.call a "map" Jv.[| repr f |]
 
   let fold_left f acc a =
-    Obj.magic @@ Jv.call a "reduce" [|Jv.repr f; Jv.repr acc|]
+    Obj.magic @@ Jv.call a "reduce" [|Jv.wrap_callback f; Jv.repr acc|]
 
   let fold_right f a acc =
     let f acc v = f v acc in
-    Obj.magic @@ Jv.call a "reduceRight" [|Jv.repr f; Jv.repr acc|]
+    Obj.magic @@ Jv.call a "reduceRight" [|Jv.wrap_callback f; Jv.repr acc|]
 
   let reverse a = Jv.call a "reverse" Jv.[||]
 
@@ -1908,10 +1908,10 @@ module G = struct
   type timer_id = int
 
   let set_timeout ~ms f =
-    Jv.to_int @@ Jv.call Jv.global "setTimeout" [| Jv.repr f; Jv.of_int ms |]
+    Jv.to_int @@ Jv.call Jv.global "setTimeout" [| Jv.wrap_callback f; Jv.of_int ms |]
 
   let set_interval ~ms f =
-    Jv.to_int @@ Jv.call Jv.global "setInterval" [| Jv.repr f; Jv.of_int ms |]
+    Jv.to_int @@ Jv.call Jv.global "setInterval" [| Jv.wrap_callback f; Jv.of_int ms |]
 
   let stop_timer tid =
     (* according to spec interval and timeout share the same ints *)
